@@ -105,8 +105,8 @@ export default class App extends Component {
       this.setState({ response: 'The temperature is 20 degrees.' });
       Tts.speak('The temperature is 20 degrees.'); // Speak the response
     } else if (recognizedText.includes('tell me about yourself')) {
-      this.setState({ response: 'I am Peter, a virtual assistant created to help you with various tasks.' });
-      Tts.speak('I am Peter, a virtual assistant created to help you with various tasks.'); // Speak the response
+      this.setState({ response: 'I am Peter, a virtual assistant created to help you with various tasks related to Pentair app' });
+      Tts.speak('I am Peter, a virtual assistant created to help you with various tasks related to Pentair app.'); // Speak the response
     } else if( (recognizedText.includes('navigate') || recognizedText.includes('navigation')) && (recognizedText.includes("notification") || recognizedText.includes("notifications")) ){
       this.setState({ response: 'Sure' });
       Tts.speak('Sure'); // Speak the response
