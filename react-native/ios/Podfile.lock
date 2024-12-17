@@ -296,6 +296,15 @@ PODS:
     - React-perflogger (= 0.68.7)
   - RNCPicker (1.16.8):
     - React-Core
+  - RNFS (2.20.0):
+    - React-Core
+  - RNLocalize (3.3.0):
+    - React-Core
+  - RNScreens (3.18.0):
+    - React-Core
+    - React-RCTImage
+  - TextToSpeech (4.1.1):
+    - React-Core
   - Yoga (1.14.0)
 
 DEPENDENCIES:
@@ -335,6 +344,10 @@ DEPENDENCIES:
   - React-runtimeexecutor (from `../node_modules/react-native/ReactCommon/runtimeexecutor`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - "RNCPicker (from `../node_modules/@react-native-picker/picker`)"
+  - RNFS (from `../node_modules/react-native-fs`)
+  - RNLocalize (from `../node_modules/react-native-localize`)
+  - RNScreens (from `../node_modules/react-native-screens`)
+  - TextToSpeech (from `../node_modules/react-native-tts`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -412,6 +425,14 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   RNCPicker:
     :path: "../node_modules/@react-native-picker/picker"
+  RNFS:
+    :path: "../node_modules/react-native-fs"
+  RNLocalize:
+    :path: "../node_modules/react-native-localize"
+  RNScreens:
+    :path: "../node_modules/react-native-screens"
+  TextToSpeech:
+    :path: "../node_modules/react-native-tts"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -453,8 +474,12 @@ SPEC CHECKSUMS:
   React-runtimeexecutor: 18932e685b4893be88d1efc18f5f8ca1c9cd39d8
   ReactCommon: 29bb6fad3242e30e9d049bc9d592736fa3da9e50
   RNCPicker: 0991c56da7815c0cf946d6f63cf920b25296e5f6
+  RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
+  RNLocalize: 298e85ce16540a11de40c1a588ead39fc5e9a072
+  RNScreens: f3230dd008a7d0ce5c0a8bc78ff12cf2315bda24
+  TextToSpeech: 2b930ec3756afde499061f4f01ea895e1f75dccb
   Yoga: 0bc4b37c3b8a345336ff601e2cf7d9704bab7e93
 
 PODFILE CHECKSUM: 0052e6a10d8424d84416b8090efd0354fc489666
 
-COCOAPODS: 1.16.2
+COCOAPODS: 1.15.2
