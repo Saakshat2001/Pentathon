@@ -8,6 +8,10 @@ import NotificationScreen from './Notifications';
 import RNCalendarEvents from 'react-native-calendar-events';
 import axios from 'axios';
 import { postData } from '../../service/apiService';
+import Sound from 'react-native-sound';
+
+Sound.setCategory('Playback');
+
 
 
 
@@ -22,6 +26,23 @@ export default class App extends Component {
       response: '', // To store the system's response
     };
   }
+  
+  // beepSound = new Sound('../../android/app/src/main/assets/beep.mp3', Sound.MAIN_BUNDLE, (error) => {
+  beepSound = new Sound('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', Sound.MAIN_BUNDLE, (error) => {
+    if (error) {
+      console.log('Failed to load the sound', error);
+    }
+  });
+
+  playBeep = () => {
+    this.beepSound.play((success) => {
+      if (success) {
+        console.log('Successfully played beep sound');
+      } else {
+        console.log('Playback failed due to audio decoding errors');
+      }
+    });
+  };
 
   async componentDidMount() {
     // Initialize Tts settings
@@ -111,7 +132,9 @@ export default class App extends Component {
       this.setState({ response: 'Sure' });
       Tts.speak('Sure'); // Speak the response
      this.props.navigation.navigate('NotificationScreen')
-    } 
+    } else if(recognizedText.includes("play")) {
+      this.playBeep()
+    }
     else {
       this.setState({ response: 'Sorry, I didn\'t understand that.' });
       Tts.speak('Sorry, I didn\'t understand that.'); // Speak the response
