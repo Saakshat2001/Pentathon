@@ -137,7 +137,18 @@ export default class App extends Component {
     } else if (recognizedText.includes('tell me about yourself')) {
       this.setState({ response: 'I am Peter, a virtual assistant created to help you with various tasks related to Pentair app' });
       Tts.speak('I am Peter, a virtual assistant created to help you with various tasks related to Pentair app.'); // Speak the response
-    } else if( (recognizedText.includes('navigate') || recognizedText.includes('navigation')) && (recognizedText.includes("notification") || recognizedText.includes("notifications")) ){
+    } 
+    else if (recognizedText.includes('on the lights')) {
+      this.setState({ response: 'Sure turning on the light' });
+      Tts.speak('Sure turning on the light'); // Speak the response
+      this.sendPostRequest('can you switch on the lights'); // Make the POST request when user says hello
+    }
+    else if (recognizedText.includes('off the lights') || recognizedText.includes('of the lights')) {
+      this.setState({ response: 'Sure turning off the light' });
+      Tts.speak('Sure turning off the light'); // Speak the response
+      this.sendPostRequest('can you switch off the lights'); // Make the POST request when user says hello
+    }
+    else if( (recognizedText.includes('navigate') || recognizedText.includes('navigation')) && (recognizedText.includes("notification") || recognizedText.includes("notifications")) ){
       this.setState({ response: 'Sure' });
       Tts.speak('Sure'); // Speak the response
       this.props.navigation.navigate('NotificationScreen')
@@ -159,7 +170,8 @@ export default class App extends Component {
 
   // Function to send a POST request when user says "hello"
   sendPostRequest = async (message) => {
-    const sessionId = "123123123-123123123-435454-12313";  // The session ID
+    const sessionId = "123123123-123123123-4354-12313";  // The session ID
+    console.log('message is -----------_>>>>> ', message);
     
     try {
       // Making the POST request
@@ -170,7 +182,8 @@ export default class App extends Component {
         },
         body: JSON.stringify({
           sessionId: sessionId,  // Send the session ID in the request body
-          messages: [{ content: message }], // Send the message in the body
+          message: message, // Send the message in the body
+          userId: "user002"
         }),
       });
 
