@@ -1,10 +1,15 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { PorcupineManager } from '@picovoice/porcupine-react-native';
 import Voice from '@react-native-voice/voice';
 import RNFS from 'react-native-fs';
 import Tts from 'react-native-tts';
 import NotificationScreen from './Notifications';
+import RNCalendarEvents from 'react-native-calendar-events';
+import axios from 'axios';
+import { postData } from '../../service/apiService';
+
+
 
 export default class App extends Component {
   constructor(props) {
@@ -102,7 +107,7 @@ export default class App extends Component {
     } else if (recognizedText.includes('tell me about yourself')) {
       this.setState({ response: 'I am Peter, a virtual assistant created to help you with various tasks.' });
       Tts.speak('I am Peter, a virtual assistant created to help you with various tasks.'); // Speak the response
-    } else if(recognizedText.includes('navigate to notification screen')){
+    } else if( (recognizedText.includes('navigate') || recognizedText.includes('navigation')) && (recognizedText.includes("notification") || recognizedText.includes("notifications")) ){
       this.setState({ response: 'Sure' });
       Tts.speak('Sure'); // Speak the response
      this.props.navigation.navigate('NotificationScreen')
@@ -164,6 +169,21 @@ export default class App extends Component {
     Tts.stop(); // Stop any ongoing speech when the component unmounts
   }
 
+  syncCalendarData = () => {
+    const startDate = new Date().toISOString(); // Current date
+    const endDate = new Date(new Date().setDate(new Date().getDate() + 20)).toISOString(); // 7 days from now
+
+    RNCalendarEvents.fetchAllEvents(startDate, endDate)
+      .then(events => {
+        console.log('Fetched events:', events);
+
+        // axios.get('https://x4s7hmcja2.execute-api.us-west-2.amazonaws.com/sandbox/uploadEvents')
+
+        postData(events)
+      })
+      .catch(error => console.error('Error fetching events:', error));
+  }
+
   render() {
     return (
       <View style={styles.container}>
@@ -174,6 +194,14 @@ export default class App extends Component {
         <Text style={styles.responseText}>
           {this.state.response || 'I am waiting for your command.'}
         </Text>
+
+        <TouchableOpacity style={{height: 50, width: 120, backgroundColor: '#66ccff', alignItems: 'center', justifyContent: 'center', borderRadius: 20,
+          marginTop: 100
+          }} 
+          onPress={() => this.syncCalendarData()}>
+
+            <Text>Sync Calendar</Text>
+        </TouchableOpacity>
       </View>
     );
   }
