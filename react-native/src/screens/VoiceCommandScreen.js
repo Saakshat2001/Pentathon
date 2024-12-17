@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Button, StyleSheet, Text, View } from 'react-native';
 import { PorcupineManager } from '@picovoice/porcupine-react-native';
 import Voice from '@react-native-voice/voice';
 import RNFS from 'react-native-fs';
@@ -102,7 +102,7 @@ export default class App extends Component {
     } else if (recognizedText.includes('tell me about yourself')) {
       this.setState({ response: 'I am Peter, a virtual assistant created to help you with various tasks.' });
       Tts.speak('I am Peter, a virtual assistant created to help you with various tasks.'); // Speak the response
-    } else if(recognizedText.includes('navigate to notification screen')){
+    } else if(recognizedText.includes('notification')){
       this.setState({ response: 'Sure' });
       Tts.speak('Sure'); // Speak the response
      this.props.navigation.navigate('NotificationScreen')
@@ -174,6 +174,7 @@ export default class App extends Component {
         <Text style={styles.responseText}>
           {this.state.response || 'I am waiting for your command.'}
         </Text>
+        <Button  title='Navigate To Notification' onPress={() => this.props.navigation.navigate('NotificationScreen') }></Button>
       </View>
     );
   }

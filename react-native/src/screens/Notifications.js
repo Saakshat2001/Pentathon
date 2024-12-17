@@ -1,49 +1,70 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, ScrollView } from 'react-native';
+
 const NotificationScreen = ({ navigation }) => {
-  // Sample notifications data
-  const [notifications, setNotifications] = useState([
-    { id: '1', title: 'New Message', details: 'You have received a new message from John.' },
-    { id: '2', title: 'System Update', details: 'A new system update is available for your device.' },
-    { id: '3', title: 'Reminder', details: 'Don’t forget to check the upcoming event today.' },
-  ]);
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // If notifications array is empty, show the "No alerts" message
+  // Fetch notifications from the API
   useEffect(() => {
-    if (notifications.length === 0) {
-      console.log('No notifications available');
-    }
-  }, [notifications]);
+    const fetchNotifications = async () => {
+      try {
+        const response = await fetch('https://x4s7hmcja2.execute-api.us-west-2.amazonaws.com/sandbox/notifications?userId=user01');
+        const data = await response.json();
+        // Filter for the notification with code 'SJS-178'
+        const filteredNotifications = data.filter(notification => notification.notification_code === 'SJS-178');
+        setNotifications(filteredNotifications);
+      } catch (error) {
+        console.error('Error fetching notifications:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // Render individual notification
-  const renderNotification = ({ item }) => (
-    <TouchableOpacity style={styles.notificationContainer}>
-      <Text style={styles.notificationTitle}>{item.title}</Text>
-      <Text style={styles.notificationDetails}>{item.details}</Text>
-    </TouchableOpacity>
-  );
+    fetchNotifications();
+  }, []);
+
+  // Render the event details and suggestions
+  const renderNotification = ({ item }) => {
+    // Parse the suggestions from JSON string
+    const suggestions = JSON.parse(item.suggestions)?.suggestions || [];
+
+    return (
+      <View style={styles.notificationCard}>
+        {suggestions.map((suggestion, index) => (
+          <View key={index} style={styles.suggestionCard}>
+            <View style={styles.cardHeader}>
+              <Text style={styles.eventTitle}>{suggestion.eventTitle}</Text>
+              <Text style={styles.eventDate}>{suggestion.recommendedSchedule}</Text>
+            </View>
+
+            <Text style={styles.actionableAdvice}>{suggestion.actionableAdvice}</Text>
+
+            <ScrollView style={styles.suggestionList}>
+              {suggestion.steps.map((step, idx) => (
+                <View key={idx} style={styles.suggestionItem}>
+                  <Text style={styles.suggestionAction}>{step.action}</Text>
+                  <Text style={styles.suggestionReminder}>{step.reminder}</Text>
+                </View>
+              ))}
+            </ScrollView>
+          </View>
+        ))}
+      </View>
+    );
+  };
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-     
-        <TouchableOpacity  style={{marginLeft: 5}}  >
-          <Icon name="arrow-left"  size={25} color="#000" />
-        </TouchableOpacity>
-
-      </View>
-
-      {/* Notifications List */}
-      {notifications.length === 0 ? (
-        <Text style={styles.noNotificationsText}>No alerts</Text>
+      {loading ? (
+        <Text style={styles.loadingText}>Loading...</Text>
+      ) : notifications.length === 0 ? (
+        <Text style={styles.noNotificationsText}>No new notifications</Text>
       ) : (
         <FlatList
           data={notifications}
           renderItem={renderNotification}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.notificationList}
+          keyExtractor={(item) => item.notification_code}
         />
       )}
     </View>
@@ -56,32 +77,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
     padding: 20,
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-    marginBottom: 10,
-  },
-  backButton: {
-    padding: 10,
-  },
-  backButtonText: {
-    fontSize: 16,
-    color: '#007AFF',
-  },
-  headerTitle: {
-    flex: 1,
+  loadingText: {
+    fontSize: 18,
     textAlign: 'center',
-    fontSize: 22,
-    fontWeight: 'bold',
     color: '#333',
   },
-  notificationList: {
-    paddingBottom: 20,
+  noNotificationsText: {
+    fontSize: 18,
+    textAlign: 'center',
+    color: 'red',
+    fontWeight: 'bold',
   },
-  notificationContainer: {
+  notificationCard: {
     backgroundColor: '#fff',
     padding: 15,
     marginVertical: 10,
@@ -91,24 +98,208 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-    width: '100%',
   },
-  notificationTitle: {
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  eventTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
   },
-  notificationDetails: {
+  eventDate: {
     fontSize: 14,
     color: '#555',
-    marginTop: 5,
+    textAlign: 'right',
   },
-  noNotificationsText: {
-    fontSize: 18,
-    color: 'red',
-    fontWeight: 'bold',
-    textAlign: 'center',
+  actionableAdvice: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#333',
+    marginTop: 10,
+  },
+  suggestionList: {
+    marginTop: 10,
+    paddingLeft: 15,
+  },
+  suggestionItem: {
+    marginBottom: 10,
+  },
+  suggestionAction: {
+    fontSize: 16,
+    color: '#333',
+    marginBottom: 5,
+  },
+  suggestionReminder: {
+    fontSize: 14,
+    color: '#007AFF',
   },
 });
 
 export default NotificationScreen;
+
+
+// import React, { useState, useEffect } from 'react';
+// import { StyleSheet, Text, View, FlatList, TouchableOpacity, ScrollView, Linking } from 'react-native';
+
+// const NotificationScreen = ({ navigation }) => {
+//   const [notifications, setNotifications] = useState([]);
+//   const [loading, setLoading] = useState(true);
+
+//   // Fetch notifications from the API
+//   useEffect(() => {
+//     const fetchNotifications = async () => {
+//       try {
+//         const response = await fetch('https://x4s7hmcja2.execute-api.us-west-2.amazonaws.com/sandbox/notifications?userId=user');
+//         const data = await response.json();
+//         setNotifications(data); // Show all notifications
+//       } catch (error) {
+//         console.error('Error fetching notifications:', error);
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+
+//     fetchNotifications();
+//   }, []);
+
+//   // Handle opening an alarm when clicking on a reminder
+//   const handleAlarmClick = (reminder) => {
+//     const alarmTime = reminder.match(/\d{4}-\d{2}-\d{2}/); // Extract date (example: 2024-12-23)
+//     if (alarmTime) {
+//       const date = new Date(alarmTime[0]);
+//       const alarmTimeFormatted = date.toISOString();
+
+//       // Open the native alarm app if possible (open via linking)
+//       Linking.openURL(`alarm://${alarmTimeFormatted}`).catch(err => console.error("Failed to open alarm app", err));
+//     } else {
+//       console.log("No valid date found for alarm.");
+//     }
+//   };
+
+//   // Render the event details and suggestions
+//   const renderNotification = ({ item }) => {
+//     // Parse the suggestions from the JSON string
+//     const suggestions = JSON.parse(item.suggestions)?.suggestions || [];
+
+//     return (
+//       <View style={styles.notificationCard}>
+//         {suggestions.map((suggestion, index) => (
+//           <View key={index} style={styles.suggestionCard}>
+//             <View style={styles.cardHeader}>
+//               <Text style={styles.eventTitle}>{suggestion.eventTitle}</Text>
+//               <Text style={styles.eventDate}>{suggestion.scheduledDate}</Text>
+//             </View>
+
+//             <Text style={styles.actionableAdvice}>{suggestion.actionableAdvice}</Text>
+
+//             {suggestion.steps && (
+//               <ScrollView style={styles.suggestionList}>
+//                 {suggestion.steps.map((step, idx) => (
+//                   <View key={idx} style={styles.suggestionItem}>
+//                     <Text style={styles.suggestionAction}>• {step}</Text>
+//                   </View>
+//                 ))}
+//               </ScrollView>
+//             )}
+
+//             {suggestion.followUpQuestion && (
+//               <TouchableOpacity onPress={() => handleAlarmClick(suggestion.followUpQuestion)}>
+//                 <Text style={styles.reminderQuestion}>{suggestion.followUpQuestion}</Text>
+//               </TouchableOpacity>
+//             )}
+//           </View>
+//         ))}
+//       </View>
+//     );
+//   };
+
+//   return (
+//     <View style={styles.container}>
+//       {loading ? (
+//         <Text style={styles.loadingText}>Loading...</Text>
+//       ) : notifications.length === 0 ? (
+//         <Text style={styles.noNotificationsText}>No new notifications</Text>
+//       ) : (
+//         <FlatList
+//           data={notifications}
+//           renderItem={renderNotification}
+//           keyExtractor={(item) => item.notification_code}
+//         />
+//       )}
+//     </View>
+//   );
+// };
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     backgroundColor: '#f5f5f5',
+//     padding: 20,
+//   },
+//   loadingText: {
+//     fontSize: 18,
+//     textAlign: 'center',
+//     color: '#333',
+//   },
+//   noNotificationsText: {
+//     fontSize: 18,
+//     textAlign: 'center',
+//     color: 'red',
+//     fontWeight: 'bold',
+//   },
+//   notificationCard: {
+//     backgroundColor: '#fff',
+//     padding: 15,
+//     marginVertical: 10,
+//     borderRadius: 10,
+//     shadowColor: '#000',
+//     shadowOffset: { width: 0, height: 2 },
+//     shadowOpacity: 0.1,
+//     shadowRadius: 4,
+//     elevation: 3,
+//   },
+//   cardHeader: {
+//     flexDirection: 'row',
+//     justifyContent: 'space-between',
+//     marginBottom: 10,
+//   },
+//   eventTitle: {
+//     fontSize: 18,
+//     fontWeight: 'bold',
+//     color: '#333',
+//   },
+//   eventDate: {
+//     fontSize: 14,
+//     color: '#555',
+//     textAlign: 'right',
+//   },
+//   actionableAdvice: {
+//     fontSize: 16,
+//     fontWeight: '500',
+//     color: '#333',
+//     marginTop: 10,
+//   },
+//   suggestionList: {
+//     marginTop: 10,
+//     paddingLeft: 15,
+//   },
+//   suggestionItem: {
+//     marginBottom: 10,
+//   },
+//   suggestionAction: {
+//     fontSize: 16,
+//     color: '#333',
+//     marginBottom: 5,
+//   },
+//   reminderQuestion: {
+//     fontSize: 14,
+//     color: '#007AFF',
+//     marginTop: 10,
+//     textDecorationLine: 'underline',
+//   },
+// });
+
+// export default NotificationScreen;
