@@ -4,6 +4,7 @@ import { PorcupineManager } from '@picovoice/porcupine-react-native';
 import Voice from '@react-native-voice/voice';
 import RNFS from 'react-native-fs';
 import Tts from 'react-native-tts';
+import NotificationScreen from './Notifications';
 
 export default class App extends Component {
   constructor(props) {
@@ -19,7 +20,7 @@ export default class App extends Component {
 
   async componentDidMount() {
     // Initialize Tts settings
-    Tts.setDefaultRate(1.0); // Set default rate
+    Tts.setDefaultRate(0.5); // Set default rate
     Tts.setDefaultPitch(0.5); // Set default pitch
     
     // Get available voices and set a specific voice
@@ -75,7 +76,8 @@ export default class App extends Component {
 
       // Start speech recognition with a specific language code (e.g., 'en-US')
       await Voice.start('en-US');
-
+       console.log('Voice services started');
+       
       // Handle recognized speech results
       Voice.onSpeechResults = this.onSpeechResults;
       Voice.onSpeechError = this.onSpeechError;
@@ -100,7 +102,12 @@ export default class App extends Component {
     } else if (recognizedText.includes('tell me about yourself')) {
       this.setState({ response: 'I am Peter, a virtual assistant created to help you with various tasks.' });
       Tts.speak('I am Peter, a virtual assistant created to help you with various tasks.'); // Speak the response
-    } else {
+    } else if(recognizedText.includes('navigate to notification screen')){
+      this.setState({ response: 'Sure' });
+      Tts.speak('Sure'); // Speak the response
+     this.props.navigation.navigate('NotificationScreen')
+    } 
+    else {
       this.setState({ response: 'Sorry, I didn\'t understand that.' });
       Tts.speak('Sorry, I didn\'t understand that.'); // Speak the response
     }
