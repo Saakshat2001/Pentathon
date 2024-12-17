@@ -134,7 +134,11 @@ export default class App extends Component {
      this.props.navigation.navigate('NotificationScreen')
     } else if(recognizedText.includes("play")) {
       this.playBeep()
-    }
+    } else if( (recognizedText.includes("sync") || recognizedText.includes("sink")) && ( recognizedText.includes("calendar") || recognizedText.includes("calendars")) ) {
+      // console.log("calendar data syncing...")
+      Tts.speak('Sure, Syncing your calendar data');
+      this.syncCalendarData()
+    } 
     else {
       this.setState({ response: 'Sorry, I didn\'t understand that.' });
       Tts.speak('Sorry, I didn\'t understand that.'); // Speak the response
