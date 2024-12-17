@@ -5,7 +5,7 @@ import Voice from '@react-native-voice/voice';
 import RNFS from 'react-native-fs';
 import Tts from 'react-native-tts';
 
-export default class VoiceCommandScreen extends Component {
+export default class App extends Component {
   constructor(props) {
     super(props);
 
@@ -27,14 +27,9 @@ export default class VoiceCommandScreen extends Component {
       Tts.voices().then((voices) => {
         console.log('Available voices:', voices);  // Log all available voices
         // Find a male voice or set the default one
-        const maleVoice = voices.find(voice => voice.gender === 'male');
-        
-        if (maleVoice) {
-          Tts.setDefaultVoice(maleVoice.id);  // Set male voice
-          console.log('Male voice set to:', maleVoice);
-        } else {
-          console.warn('No male voice found. Defaulting to system voice.');
-        }
+        const maleVoice = "en-US-SMTl03";  // Replace with your desired voice id
+        Tts.setDefaultVoice(maleVoice);  // Set the default voice
+        console.log('Voice set to:', maleVoice);
       });
     });
 
@@ -95,7 +90,11 @@ export default class VoiceCommandScreen extends Component {
     this.setState({ speechResult: recognizedText });
 
     // Check recognized speech and respond accordingly
-    if (recognizedText.includes('what is the temperature')) {
+    if (recognizedText.includes('hello')) {
+      this.setState({ response: 'Hello, how can I assist you today?' });
+      Tts.speak('Hello, how can I assist you today?'); // Speak the response
+      this.sendPostRequest('hello'); // Make the POST request when user says hello
+    } else if (recognizedText.includes('what is the temperature')) {
       this.setState({ response: 'The temperature is 20 degrees.' });
       Tts.speak('The temperature is 20 degrees.'); // Speak the response
     } else if (recognizedText.includes('tell me about yourself')) {
@@ -109,6 +108,45 @@ export default class VoiceCommandScreen extends Component {
 
   onSpeechError = (e) => {
     console.error('Speech Error:', e.error);
+  };
+
+  // Function to send a POST request when user says "hello"
+  sendPostRequest = async (message) => {
+    const sessionId = "123123123-123123123-435454-12313";  // The session ID
+    
+    try {
+      // Making the POST request
+      const response = await fetch('https://x4s7hmcja2.execute-api.us-west-2.amazonaws.com/sandbox/lexinvoke', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sessionId: sessionId,  // Send the session ID in the request body
+          messages: [{ content: message }], // Send the message in the body
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const data = await response.json(); // Get the JSON response
+      console.log('Server Response:', data);
+
+      // Read the response aloud
+      if (data && data.messages) {
+        this.setState({ response: data.messages });
+        Tts.speak(data.messages[0]);  // Speak the response from the server
+      } else {
+        this.setState({ response: 'No message received from server.' });
+        Tts.speak('No message received from server.');
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      this.setState({ response: 'Failed to fetch data from server.' });
+      Tts.speak('Failed to fetch data from server.');
+    }
   };
 
   componentWillUnmount() {
