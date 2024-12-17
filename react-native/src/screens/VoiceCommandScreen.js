@@ -9,6 +9,10 @@ import RNCalendarEvents from 'react-native-calendar-events';
 import axios from 'axios';
 import { postData } from '../../service/apiService';
 import Sound from 'react-native-sound';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import { withNavigation } from '@react-navigation/native';
+
+
 
 Sound.setCategory('Playback');
 
@@ -45,6 +49,18 @@ export default class App extends Component {
   };
 
   async componentDidMount() {
+    const { navigation } = this.props;
+    navigation.setOptions({
+      headerRight: () => (
+        <Icon
+          name="bell"
+          size={25}
+          color="black"
+          style={{ marginRight: 15 }}
+          onPress={() => this.props.navigation.navigate('NotificationScreen')}
+        />
+      ),
+    });
     // Initialize Tts settings
     Tts.setDefaultRate(0.5); // Set default rate
     Tts.setDefaultPitch(0.5); // Set default pitch
@@ -222,13 +238,7 @@ export default class App extends Component {
           {this.state.response || 'I am waiting for your command.'}
         </Text>
 
-        <TouchableOpacity style={{height: 50, width: 120, backgroundColor: '#66ccff', alignItems: 'center', justifyContent: 'center', borderRadius: 20,
-          marginTop: 100
-          }} 
-          onPress={() => this.syncCalendarData()}>
-
-            <Text>Sync Calendar</Text>
-        </TouchableOpacity>
+        
       </View>
     );
   }
