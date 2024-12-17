@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native';
 import { PorcupineManager } from '@picovoice/porcupine-react-native';
 import Voice from '@react-native-voice/voice';
 import RNFS from 'react-native-fs';
@@ -9,15 +9,9 @@ import RNCalendarEvents from 'react-native-calendar-events';
 import axios from 'axios';
 import { postData } from '../../service/apiService';
 import Sound from 'react-native-sound';
-import Icon from 'react-native-vector-icons/FontAwesome';
 import { withNavigation } from '@react-navigation/native';
 
-
-
 Sound.setCategory('Playback');
-
-
-
 
 export default class App extends Component {
   constructor(props) {
@@ -31,7 +25,6 @@ export default class App extends Component {
     };
   }
   
-  // beepSound = new Sound('../../android/app/src/main/assets/beep.mp3', Sound.MAIN_BUNDLE, (error) => {
   beepSound = new Sound('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', Sound.MAIN_BUNDLE, (error) => {
     if (error) {
       console.log('Failed to load the sound', error);
@@ -52,15 +45,15 @@ export default class App extends Component {
     const { navigation } = this.props;
     navigation.setOptions({
       headerRight: () => (
-        <Icon
-          name="bell"
-          size={25}
-          color="black"
-          style={{ marginRight: 15 }}
-          onPress={() => this.props.navigation.navigate('NotificationScreen')}
-        />
+        <TouchableOpacity onPress={() => this.props.navigation.navigate('NotificationScreen')}>
+          <Image
+            source={require('./bell.png')} // Replace with the actual path to your image
+            style={{ width: 30, height: 30, marginRight: 15 }}
+          />
+        </TouchableOpacity>
       ),
     });
+    
     // Initialize Tts settings
     Tts.setDefaultRate(0.5); // Set default rate
     Tts.setDefaultPitch(0.5); // Set default pitch
@@ -118,7 +111,7 @@ export default class App extends Component {
 
       // Start speech recognition with a specific language code (e.g., 'en-US')
       await Voice.start('en-US');
-       console.log('Voice services started');
+      console.log('Voice services started');
        
       // Handle recognized speech results
       Voice.onSpeechResults = this.onSpeechResults;
@@ -147,11 +140,10 @@ export default class App extends Component {
     } else if( (recognizedText.includes('navigate') || recognizedText.includes('navigation')) && (recognizedText.includes("notification") || recognizedText.includes("notifications")) ){
       this.setState({ response: 'Sure' });
       Tts.speak('Sure'); // Speak the response
-     this.props.navigation.navigate('NotificationScreen')
+      this.props.navigation.navigate('NotificationScreen')
     } else if(recognizedText.includes("play")) {
       this.playBeep()
     } else if( (recognizedText.includes("sync") || recognizedText.includes("sink")) && ( recognizedText.includes("calendar") || recognizedText.includes("calendars")) ) {
-      // console.log("calendar data syncing...")
       Tts.speak('Sure, Syncing your calendar data');
       this.syncCalendarData()
     } 
@@ -220,8 +212,6 @@ export default class App extends Component {
       .then(events => {
         console.log('Fetched events:', events);
 
-        // axios.get('https://x4s7hmcja2.execute-api.us-west-2.amazonaws.com/sandbox/uploadEvents')
-
         postData(events)
       })
       .catch(error => console.error('Error fetching events:', error));
@@ -230,15 +220,13 @@ export default class App extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <Text style={styles.title}>Wake Word Activated!</Text>
+        <Text style={styles.title}>Mission Ai Possible!</Text>
         <Text style={styles.resultText}>
           {this.state.speechResult || 'Say something after the wake word...'}
         </Text>
         <Text style={styles.responseText}>
           {this.state.response || 'I am waiting for your command.'}
         </Text>
-
-        
       </View>
     );
   }
